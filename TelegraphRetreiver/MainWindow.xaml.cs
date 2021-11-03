@@ -34,25 +34,11 @@ namespace TelegraphRetreiver
         {
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            //    WebClient Trademe = new WebClient();
-            //    Trademe.DownloadStringCompleted += new
-            //    DownloadStringCompletedEventHandler(Trademe_DownloadStringCompleted);
-            //    Trademe.DownloadStringAsync(new
-            //    Uri("http://api.trademe.co.nz/v1/Search/General.xml?search_string=" +
-            //    TradeSearch.Text));
-            //    progressBar1.IsIndeterminate = true;
-            //    progressBar1.Visibility = Visibility.Visible;
-        }
-
-        // Display listing for used general products:
         void Trademe_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
             if (e.Error != null)
                 return;
-            //var r = XDocument.Parse(e.Result);
-            using (FileStream filestream = new FileStream($"page{++num}.html", FileMode.Create))
+            using (FileStream filestream = new FileStream($"page{num}.html", FileMode.Create))
             {
                 var streamwriter = new StreamWriter(filestream);
                 streamwriter.Write(e.Result);
@@ -60,36 +46,13 @@ namespace TelegraphRetreiver
                 Console.SetOut(streamwriter);
                 Console.SetError(streamwriter);
             }
-            //// Declare the namespace.
-            //XNamespace ns = "http://api.trademe.co.nz/v1";
             string curDir = Directory.GetCurrentDirectory();
             //webBrowser.NavigateToString(e.Result);
-            webBrowser.Navigate(new Uri(String.Format("file:///{0}/page" + (num - 1) + ".html", curDir)));
+            webBrowser.Navigate(new Uri(String.Format("file:///{0}/page" + num + ".html", curDir)));
             progressBar1.IsIndeterminate = false;
             progressBar1.Visibility = Visibility.Collapsed;
+            num++;
         }
-
-        void Detail_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            if (e.Error != null)
-                return;
-            var r = XDocument.Parse(e.Result);
-            // Declare the namespace.
-            progressBar1.IsIndeterminate = false;
-            progressBar1.Visibility = Visibility.Collapsed;
-        }
-
-        //public class TradeItem
-        //{
-        //    public string Region { get; set; }
-        //    public string ListingId { get; set; }
-        //    public string PriceDisplay { get; set; }
-        //    public string Title { get; set; }
-        //    public string ImageSource { get; set; }
-        //    public string CloseDate { get; set; }
-        //    public string StartPrice { get; set; }
-        //    public string BuyNow { get; set; }
-        //}
 
         private void btn_next_Click(object sender, RoutedEventArgs e)
         {
@@ -104,6 +67,5 @@ namespace TelegraphRetreiver
         {
             return "Hello-World-01-01";
         }
-        // Run query string to pass LIstingID to next page.
     }
 }
