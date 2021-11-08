@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
+using log4net;
 
 namespace TelegraphRetreiver
 {
@@ -23,21 +24,55 @@ namespace TelegraphRetreiver
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        public int CurrentTries
+        {
+            get { return (int)GetValue(CurrentTriesProperty); }
+            set { SetValue(CurrentTriesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for CurrentTries.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CurrentTriesProperty =
+            DependencyProperty.Register("CurrentTries", typeof(int), typeof(MainWindow), new PropertyMetadata(0));
+
+
+
+        public int TotalTries
+        {
+            get { return (int)GetValue(TotalTriesProperty); }
+            set { SetValue(TotalTriesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for TotalTries.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty TotalTriesProperty =
+            DependencyProperty.Register("TotalTries", typeof(int), typeof(MainWindow), new PropertyMetadata(0));
+
+
+        private int wordCount = 2;
+        private Uri randomWordURI = new Uri($"https://random-word-api.herokuapp.com/word?number=2");
         private int num = 0;
         public MainWindow()
         {
             InitializeComponent();
+            log4net.Config.XmlConfigurator.Configure();
             Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            btn_next_Click(this, new RoutedEventArgs());
         }
 
         void Trademe_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
             if (e.Error != null)
+            {
+                btn_next_Click(this, new RoutedEventArgs());
+                TotalTries++;
+                CurrentTries++;
                 return;
+            }
             using (FileStream filestream = new FileStream($"page{num}.html", FileMode.Create))
             {
                 var streamwriter = new StreamWriter(filestream);
@@ -52,20 +87,46 @@ namespace TelegraphRetreiver
             progressBar1.IsIndeterminate = false;
             progressBar1.Visibility = Visibility.Collapsed;
             num++;
+            CurrentTries = 0;
+            btn_next_Click(this, new RoutedEventArgs());
         }
 
         private void btn_next_Click(object sender, RoutedEventArgs e)
         {
             WebClient Trademe = new WebClient();
             Trademe.DownloadStringCompleted += new DownloadStringCompletedEventHandler(Trademe_DownloadStringCompleted);
-            Trademe.DownloadStringAsync(new Uri("http://telegra.ph/" + GetPostUri()));
+            Uri finalUri = new Uri("http://telegra.ph/" + GetPostUri().Result);
+            log.Info(finalUri);
+            Trademe.DownloadStringAsync(finalUri);
             progressBar1.IsIndeterminate = true;
             progressBar1.Visibility = Visibility.Visible;
         }
 
-        private string GetPostUri()
+        private async Task<string> GetPostUri()
         {
-            return "Hello-World-01-01";
+            WebClient getRandomWord = new WebClient();
+            string randomwords = getRandomWord.DownloadString(randomWordURI);
+            //getRandomWord.DownloadStringCompleted += GetRandomWord_DownloadStringCompleted;
+            //string randomwordsAsync = await Task.Run(async () => { await getRandomWord.DownloadStringTaskAsync(randomWordURI);});
+
+            //string randomwordsAsync = "";
+            //await Task.Run(async () => { randomwordsAsync = await getRandomWord.DownloadStringTaskAsync(randomWordURI); });
+
+
+            char[] delimiterChars = { ' ', ',', '.', ':', '\t', '"', '[', ']', '/' };
+            string[] vs = randomwords.Split(delimiterChars);
+            string result = "";
+            foreach (var word in vs)
+            {
+                if (!(string.IsNullOrEmpty(word) || string.IsNullOrWhiteSpace(word)))
+                {
+                    result += word + "-";
+                }
+            }
+            result += "01-01";
+            //Console.WriteLine(randomwordsAsync);
+            return result;
         }
+
     }
 }

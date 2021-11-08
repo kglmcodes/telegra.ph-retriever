@@ -4,15 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TelegraphRetreiver"
+        x:Name="mainwindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="900" Width="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
             <RowDefinition Height="8*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <WebBrowser x:Name="webBrowser" Grid.Row="0"></WebBrowser>
-        <ProgressBar x:Name="progressBar1" Width="100" Height="20" Grid.Row="1" HorizontalAlignment="Left"/>
-        <Button x:Name="btn_next" Content="Next Page" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Bottom" Click="btn_next_Click"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Panel.ZIndex="33" Height="200" Background="Gray">
+            <TextBlock Foreground="White" Text="Retires: " Margin="5,0" FontSize="24"/>
+            <TextBlock Foreground="White" x:Name="tbOnetimeTries" Text="{Binding ElementName=mainwindow, Path=CurrentTries}" Margin="0,0,5,0" FontSize="24"/>
+            <TextBlock Foreground="White" Text="TotalRetires: " Margin="5,0" FontSize="24"/>
+            <TextBlock Foreground="White" x:Name="tbTotalTries" Text="{Binding ElementName=mainwindow, Path=TotalTries}" Margin="0,0,5,0" FontSize="24"/>
+        </StackPanel>
+        <WebBrowser x:Name="webBrowser" Grid.Row="1"></WebBrowser>
+        <ProgressBar x:Name="progressBar1" Width="100" Height="20" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5"/>
+        <Button x:Name="btn_next" Content="Next Page" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Click="btn_next_Click"/>
     </Grid>
 </Window>
